@@ -28,7 +28,7 @@ if [[ "$commandType" = "configure" ]]; then
     exit
 fi
 
-#status
+# status
 if [[ "$commandType" = "status" ]]; then
     if ! [[ -f "$configFilePath" ]]; then
         echo "run \"aws-ec2-automate configure\" first"
