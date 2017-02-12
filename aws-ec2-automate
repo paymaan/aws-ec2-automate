@@ -24,6 +24,8 @@ if [[ "$commandType" = "configure" ]]; then
     read -p 'key_name: ' keyName
 
     echo "image_id:${imageId};instance_id:${instanceId};key_name:${keyName}" > ${configFilePath}
+
+    exit
 fi
 
 #status
@@ -33,6 +35,8 @@ if [[ "$commandType" = "status" ]]; then
     else
         cat $configFilePath
     fi
+
+    exit
 fi
 
 exit 0
