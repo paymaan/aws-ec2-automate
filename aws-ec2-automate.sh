@@ -18,6 +18,12 @@ if [[ "$commandType" = "configure" ]]; then
     if ! [[ -f "$configFilePath" ]]; then
         mkdir -p $artifactsPath && touch $configFilePath
     fi
+
+    read -p 'image_id: ' imageId
+    read -p 'instance_id: ' instanceId
+    read -p 'key_name: ' keyName
+
+    echo "image_id:${imageId};instance_id:${instanceId};key_name:${keyName}" > ${configFilePath}
 fi
 
 exit 0
