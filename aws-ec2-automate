@@ -18,24 +18,61 @@ if [[ "$commandType" = "configure" ]]; then
     if ! [[ -f "$configFilePath" ]]; then
         mkdir -p $artifactsPath && touch $configFilePath
     fi
-
     read -p 'image_id: ' imageId
-    read -p 'instance_id: ' instanceId
+    read -p 'instance_type: ' instanceType
     read -p 'key_name: ' keyName
+    echo "image_id:${imageId}:instance_type:${instanceType}:key_name:${keyName}" > ${configFilePath}
+    exit
+fi
 
-    echo "image_id:${imageId};instance_id:${instanceId};key_name:${keyName}" > ${configFilePath}
+# ensure user has ran configure
+if ! [[ -f "$configFilePath" ]]; then
+    echo "run \"aws-ec2-automate configure\" first"
+fi
 
+# launch
+instanceConfigFilePath=${artifactsPath}/instance_config.cfg
+if [[ "$commandType" = "launch" ]]; then
+    # ensure aws cli is installed
+    
+    # if instance already running, report instance-id and public ip address
+    if [[ -f "$instanceConfigFilePath" ]]; then
+	echo "an instance is already running. see below for details:"
+	cat $instanceConfigFilePath
+	exit
+    fi   
+
+    # if instance isn't running, launch one.
+    # write instance.cfg with instance information
+    while IFS=: read imageId imageIdVal instanceType instanceTypeVal keyName keyNameVal; do
+	if ! [[ "$imageId" = "image_id" && "$instanceType" = "instance_type" && "$keyName" = "key_name"  ]]; then
+	    echo "config file corrupted, please run \"aws-ec2-automate configure\" again"
+	    exit
+	fi
+
+	logFileName="launch_log.json"
+	logFilePath=${artifactsPath}/${logFileName}
+
+	aws ec2 run-instances                \
+	    --image-id $imageIdVal           \
+	    --instance-type $instanceTypeVal \
+	    --key-name ${keyNameVal}         \
+	    --count 1 > ${logFilePath}
+	
+	instanceIdVal="$(cat "$logFilePath" | grep InstanceId | cut -d '"' -f4)"
+        publicIpAddress="$(aws ec2 describe-instances --instance-ids $instanceIdVal | \
+                                             grep PublicIpAddress | cut -d '"' -f4)"
+	
+	echo "instance_id:${instanceIdVal}:public_ip:${publicIpAddress}" > ${instanceConfigFilePath}
+    done < $configFilePath
+        
     exit
 fi
 
 # status
 if [[ "$commandType" = "status" ]]; then
-    if ! [[ -f "$configFilePath" ]]; then
-        echo "run \"aws-ec2-automate configure\" first"
-    else
-        cat $configFilePath
-    fi
-
+    echo "ec2 config: "$(cat $configFilePath)""
+    echo "instance information: "$(cat $instanceConfigFilePath)""
     exit
 fi
 
