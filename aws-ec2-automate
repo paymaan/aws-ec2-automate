@@ -11,8 +11,9 @@ artifactsPath=~/aws-automate-ec2-artifacts
 if ! [[ "$commandType" = "configure"          \
               || "$commandType" = "launch"    \
               || "$commandType" = "terminate" \
+              || "$commandType" = "connect"   \
               || "$commandType" = "status" ]]; then
-    echo "usage: aws-ec2-automate configure|launch|terminate|status"
+    echo "usage: aws-ec2-automate configure|launch|terminate|connect|status"
     exit
 fi
 
@@ -90,8 +91,43 @@ if [[ "$commandType" = "terminate" ]]; then
 
 	# delete instance config file
 	rm -f $instanceConfigFilePath
-    done  < $instanceConfigFilePath
+    done < $instanceConfigFilePath
     
+    exit
+fi
+
+# connect
+if [[ "$commandType" = "connect" ]]; then
+    # ensure instance is running to be connected to
+    if ! [[ -f "$instanceConfigFilePath" ]]; then
+	echo "no instance is running to be connected to"	
+	exit
+    fi
+
+    # connect via ssh
+    while IFS=: read imageId imageIdVal instanceType instanceTypeVal keyName keyNameVal; do
+	if ! [[ "$imageId" = "image_id" && "$instanceType" = "instance_type" && "$keyName" = "key_name"  ]]; then
+	    echo "config file corrupted, please run \"aws-ec2-automate configure\" again"
+	    exit
+	fi
+
+	while IFS=: read instanceId instanceIdVal publicIp publicIpVal; do
+	    if ! [[ "$publicIp" = "public_ip"  ]]; then
+		echo "instance config file corrupted, please connect to the instance manually"
+		exit
+	    fi
+
+	    # now that we have keyname and public ip, start the ssh connection
+	    # todo: consider removing hardcoded values e.g. "ubuntu"
+	    # this is not working currently: "Pseudo-terminal will not be allocated because stdin is not a terminal."
+	    # tried -tt but that halts the terminal once logged in.
+	    # for now, echo the ssh command to enter manually
+	    # or do this: $(./aws-ec2-automate connect) on the command line
+	    echo "ssh -i ~/.ssh/${keyNameVal}.pem ubuntu@${publicIpVal}"
+	done < $instanceConfigFilePath
+
+    done < $configFilePath
+
     exit
 fi
 
