@@ -28,13 +28,12 @@ fi
 # ensure user has ran configure
 if ! [[ -f "$configFilePath" ]]; then
     echo "run \"aws-ec2-automate configure\" first"
+    exit
 fi
 
 # launch
 instanceConfigFilePath=${artifactsPath}/instance_config.cfg
 if [[ "$commandType" = "launch" ]]; then
-    # ensure aws cli is installed
-    
     # if instance already running, report instance-id and public ip address
     if [[ -f "$instanceConfigFilePath" ]]; then
 	echo "an instance is already running. see below for details:"
@@ -69,10 +68,38 @@ if [[ "$commandType" = "launch" ]]; then
     exit
 fi
 
+# terminate
+if [[ "$commandType" = "terminate" ]]; then
+    # ensure instance exists to be terminated
+    if ! [[ -f "$instanceConfigFilePath" ]]; then
+	echo "no instance is running to be terminated"	
+	exit
+    fi   
+    
+    # terminate instance
+    while IFS=: read instanceId instanceIdVal publicIp publicIpVal; do
+	if ! [[ "$instanceId" = "instance_id"  ]]; then
+	    echo "instance config file corrupted, please terminate the instance manually"
+	    exit
+	fi
+	aws ec2 terminate-instances --instance-ids $instanceIdVal
+
+	# delete instance config file
+	rm -f $instanceConfigFilePath
+    done  < $instanceConfigFilePath
+    
+    exit
+fi
+
 # status
 if [[ "$commandType" = "status" ]]; then
     echo "ec2 config: "$(cat $configFilePath)""
-    echo "instance information: "$(cat $instanceConfigFilePath)""
+    if [[ -f "$instanceConfigFilePath" ]]; then
+	echo "instance information: "$(cat $instanceConfigFilePath)""
+    else
+	echo "no instance running currently"
+    fi   
+
     exit
 fi
 
