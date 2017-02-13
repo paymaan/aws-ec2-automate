@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# ensure user has installed aws cli and it's on path
+# using shell built-in: "command" instead of "which"
+command -v aws > /dev/null 2>&1 || { echo "AWS CLI not installed or not on path. Install and try again." >&2; exit 1; }
+
 commandType=$1
 artifactsPath=~/aws-automate-ec2-artifacts
 
