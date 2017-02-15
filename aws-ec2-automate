@@ -120,7 +120,7 @@ if [[ "$commandType" = "connect" ]]; then
 	    # now that we have keyname and public ip, start the ssh connection
 	    # todo: consider removing hardcoded values e.g. "ubuntu"
 	    # this is not working currently: "Pseudo-terminal will not be allocated because stdin is not a terminal."
-	    # tried -tt but that halts the terminal once logged in.
+	    # tried "-t -t" but that halts the terminal once logged in.
 	    # for now, echo the ssh command to enter manually
 	    # or do this: $(./aws-ec2-automate connect) on the command line
 	    echo "ssh -i ~/.ssh/${keyNameVal}.pem ubuntu@${publicIpVal}"
