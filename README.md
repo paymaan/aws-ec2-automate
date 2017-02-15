@@ -16,10 +16,19 @@ Before running the scipt, follow these steps (if you haven't done so already):
 5. On the command line, execute `aws configure`. Fill in your Access Key ID and Secret Access Key when asked. This will also ask for your default region name, look it up in your EC2 dashboard under "Availablility Zone Status". An example is `us-west-2`. Finally, you'll be asked for Default Output Format, you can leave it blank. You can read more about this [here](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html).
 6. Now you're done with the AWS setup part. It's time to configure `aws-ec2-automate`. For that, execute `./aws-ec2-automate configure`. This will ask for an [Image ID](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html), [Instance Type](https://aws.amazon.com/ec2/instance-types/), and Key Name (e.g. "MyKeyPair" from part (3) above). Image ID is of format `ami-xxxxxxxx`. Instance Type is typically `t2.micro` which is applicable for free-tier as of today (02/14/2017).
 
-## Launching, Terminating and getting Status
+## Launching, Connecting, Terminating and getting Status
+Once AWS and `aws-ec2-automate` is configured as above, you just need these commands to launch and terminate an instance:
+
+To launch, execute `./aws-ec2-automate launch`
+To connect, execute `./aws-ec2-automate connect`. This will echo on stdout the command you need to type in of the format: `ssh -i MyKeyPair.pem ubuntu@publcIpAddress`. The key name and public IP address will be filled in for you so you don't need to fetch it from someplace else. For non-Ubuntu AMI's, use the appropriate username instead of `ubuntu`.
+To terminate, execute `./aws-ec2-automate terminate`
+
+A text file keeps track of the current instance so you don't need to remember or enter any of the general ec2 or instance information. If you do need that information however, execute `./aws-ec2-automate status`
 
 ## Limitations
+* You can launch and terminate only one instance at a time.
 
 ## Enhancements
+* Can possibly automate steps 2 and 5 in Prerequisites above.
 
 
