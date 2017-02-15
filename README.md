@@ -1,5 +1,5 @@
 # aws-ec2-automate
-Automate the process for launching and terminating EC2 instances
+Automate the process for launching, terminating and connecting to EC2 instances
 
 I wrote a bash script to help launch, connect and terminate an AWS EC2 instance from the command line.
 
