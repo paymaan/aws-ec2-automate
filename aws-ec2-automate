@@ -5,7 +5,9 @@
 command -v aws > /dev/null 2>&1 || { echo "AWS CLI not installed or not on path. Install and try again." >&2; exit 1; }
 
 commandType=$1
-artifactsPath=~/aws-automate-ec2-artifacts
+artifactsPath=~/.aws-automate-ec2-artifacts
+configFilePath=${artifactsPath}/config.cfg # see config section below
+instanceConfigFilePath=${artifactsPath}/instance_config.cfg # see launch section below
 
 # command input checking
 if ! [[ "$commandType" = "configure"          \
@@ -18,7 +20,6 @@ if ! [[ "$commandType" = "configure"          \
 fi
 
 # configure
-configFilePath=${artifactsPath}/config.cfg
 if [[ "$commandType" = "configure" ]]; then
     if ! [[ -f "$configFilePath" ]]; then
         mkdir -p $artifactsPath && touch $configFilePath
@@ -37,7 +38,6 @@ if ! [[ -f "$configFilePath" ]]; then
 fi
 
 # launch
-instanceConfigFilePath=${artifactsPath}/instance_config.cfg
 if [[ "$commandType" = "launch" ]]; then
     # if instance already running, report instance-id and public ip address
     if [[ -f "$instanceConfigFilePath" ]]; then
