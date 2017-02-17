@@ -4,7 +4,8 @@
 # using shell built-in: "command" instead of "which"
 command -v aws > /dev/null 2>&1 || { echo "AWS CLI not installed or not on path. Install and try again." >&2; exit 1; }
 
-commandType=$1
+commandType=$1 # input argument
+commandOption=$2 # option for input argument; maybe empty
 artifactsPath=~/.aws-automate-ec2-artifacts
 configFilePath=${artifactsPath}/config.cfg # see config section below
 instanceConfigFilePath=${artifactsPath}/instance_config.cfg # see launch section below
@@ -123,7 +124,17 @@ if [[ "$commandType" = "connect" ]]; then
 	    # tried "-t -t" but that halts the terminal once logged in.
 	    # for now, echo the ssh command to enter manually
 	    # or do this: $(./aws-ec2-automate connect) on the command line
-	    echo "ssh -i ~/.ssh/${keyNameVal}.pem ubuntu@${publicIpVal}"
+	    echo "ssh -i ~/.ssh/${keyNameVal}.pem -o \"StrictHostKeyChecking no\" ubuntu@${publicIpVal}"
+
+	    if [[ "$commandOption" = "--setup" ]]; then
+		# download setup-machine repo on the remote machine
+		# assumption: git is installed (pre-setup) on the remote machine
+		ssh -i ~/.ssh/${keyNameVal}.pem -o "StrictHostKeyChecking no" ubuntu@${publicIpVal} \
+		    "cd ~ && \
+                     git clone https://github.com/paymaan/setup-machine.git && \
+                     ~/setup-machine/setup-machine && \
+                     cd -"
+	    fi
 	done < $instanceConfigFilePath
 
     done < $configFilePath
