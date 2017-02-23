@@ -134,9 +134,11 @@ if [[ "$commandType" = "connect" ]]; then
 		# assumption: git is installed (pre-setup) on the remote machine
 		ssh -i ~/.ssh/${keyNameVal}.pem -o "StrictHostKeyChecking no" ubuntu@${publicIpVal} \
 		    "cd ~ && \
-                     git clone git@github.com:paymaan/setup-machine.git && \
-                     ~/setup-machine/setup-machine && \
-                     cd -"
+                     git clone https://github.com/paymaan/setup-machine.git && \
+                     cd setup-machine && \
+                     git remote set-url origin git@github.com:paymaan/setup-machine.git && \
+                     ./setup-machine && \
+                     cd ~"
 	    fi
 	done < $instanceConfigFilePath
 
