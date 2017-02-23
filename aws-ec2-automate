@@ -134,6 +134,9 @@ if [[ "$commandType" = "connect" ]]; then
                      git clone https://github.com/paymaan/setup-machine.git && \
                      ~/setup-machine/setup-machine && \
                      cd -"
+		# copy .ssh keys and git config from host securely
+		scp -i ~/.ssh/${keyNameVal}.pem -o "StrictHostKeyChecking no" -r ~/.ssh ~/.gitconfig \
+		    ubuntu@${publicIpVal}:~/
 	    fi
 	done < $instanceConfigFilePath
 
