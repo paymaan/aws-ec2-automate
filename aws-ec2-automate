@@ -127,16 +127,16 @@ if [[ "$commandType" = "connect" ]]; then
 	    echo "ssh -i ~/.ssh/${keyNameVal}.pem -o \"StrictHostKeyChecking no\" ubuntu@${publicIpVal}"
 
 	    if [[ "$commandOption" = "--setup" ]]; then
+		# copy .ssh keys and git config from host securely
+		scp -i ~/.ssh/${keyNameVal}.pem -o "StrictHostKeyChecking no" -r ~/.ssh ~/.gitconfig \
+		    ubuntu@${publicIpVal}:~/
 		# download setup-machine repo on the remote machine
 		# assumption: git is installed (pre-setup) on the remote machine
 		ssh -i ~/.ssh/${keyNameVal}.pem -o "StrictHostKeyChecking no" ubuntu@${publicIpVal} \
 		    "cd ~ && \
-                     git clone https://github.com/paymaan/setup-machine.git && \
+                     git clone git@github.com:paymaan/setup-machine.git && \
                      ~/setup-machine/setup-machine && \
                      cd -"
-		# copy .ssh keys and git config from host securely
-		scp -i ~/.ssh/${keyNameVal}.pem -o "StrictHostKeyChecking no" -r ~/.ssh ~/.gitconfig \
-		    ubuntu@${publicIpVal}:~/
 	    fi
 	done < $instanceConfigFilePath
 
