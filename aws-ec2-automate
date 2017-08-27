@@ -45,7 +45,7 @@ if [[ "$commandType" = "launch" ]]; then
 	echo "an instance is already running. see below for details:"
 	cat $instanceConfigFilePath
 	exit
-    fi   
+    fi
 
     # if instance isn't running, launch one.
     # write instance.cfg with instance information
@@ -63,14 +63,14 @@ if [[ "$commandType" = "launch" ]]; then
 	    --instance-type $instanceTypeVal \
 	    --key-name ${keyNameVal}         \
 	    --count 1 > ${logFilePath}
-	
+
 	instanceIdVal="$(cat "$logFilePath" | grep InstanceId | cut -d '"' -f4)"
         publicIpAddress="$(aws ec2 describe-instances --instance-ids $instanceIdVal | \
                                              grep PublicIpAddress | cut -d '"' -f4)"
-	
+
 	echo "instance_id:${instanceIdVal}:public_ip:${publicIpAddress}" > ${instanceConfigFilePath}
     done < $configFilePath
-        
+
     exit
 fi
 
@@ -78,10 +78,10 @@ fi
 if [[ "$commandType" = "terminate" ]]; then
     # ensure instance exists to be terminated
     if ! [[ -f "$instanceConfigFilePath" ]]; then
-	echo "no instance is running to be terminated"	
+	echo "no instance is running to be terminated"
 	exit
-    fi   
-    
+    fi
+
     # terminate instance
     while IFS=: read instanceId instanceIdVal publicIp publicIpVal; do
 	if ! [[ "$instanceId" = "instance_id"  ]]; then
@@ -93,7 +93,7 @@ if [[ "$commandType" = "terminate" ]]; then
 	# delete instance config file
 	rm -f $instanceConfigFilePath
     done < $instanceConfigFilePath
-    
+
     exit
 fi
 
@@ -101,7 +101,7 @@ fi
 if [[ "$commandType" = "connect" ]]; then
     # ensure instance is running to be connected to
     if ! [[ -f "$instanceConfigFilePath" ]]; then
-	echo "no instance is running to be connected to"	
+	echo "no instance is running to be connected to"
 	exit
     fi
 
@@ -123,13 +123,14 @@ if [[ "$commandType" = "connect" ]]; then
 	    # this is not working currently: "Pseudo-terminal will not be allocated because stdin is not a terminal."
 	    # tried "-t -t" but that halts the terminal once logged in.
 	    # for now, echo the ssh command to enter manually
-	    # or do this: $(./aws-ec2-automate connect) on the command line
+	    # or do this: eval "$(./aws-ec2-automate connect)"
 	    echo "ssh -i ~/.ssh/${keyNameVal}.pem -o \"StrictHostKeyChecking no\" ubuntu@${publicIpVal}"
 
 	    if [[ "$commandOption" = "--setup" ]]; then
 		# copy .ssh keys and git config from host securely
 		scp -i ~/.ssh/${keyNameVal}.pem -o "StrictHostKeyChecking no" -r ~/.ssh ~/.gitconfig \
 		    ubuntu@${publicIpVal}:~/
+
 		# download setup-machine repo on the remote machine
 		# assumption: git is installed (pre-setup) on the remote machine
 		ssh -i ~/.ssh/${keyNameVal}.pem -o "StrictHostKeyChecking no" ubuntu@${publicIpVal} \
@@ -154,7 +155,7 @@ if [[ "$commandType" = "status" ]]; then
 	echo "instance information: "$(cat $instanceConfigFilePath)""
     else
 	echo "no instance running currently"
-    fi   
+    fi
 
     exit
 fi
