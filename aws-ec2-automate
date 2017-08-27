@@ -61,6 +61,7 @@ if [[ "$commandType" = "launch" ]]; then
 	aws ec2 run-instances                \
 	    --image-id $imageIdVal           \
 	    --instance-type $instanceTypeVal \
+        --block-device-mapping /dev/sda1=:16:false \
 	    --key-name ${keyNameVal}         \
 	    --count 1 > ${logFilePath}
 
