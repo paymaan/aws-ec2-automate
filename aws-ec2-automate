@@ -136,9 +136,9 @@ if [[ "$commandType" = "connect" ]]; then
 		# assumption: git is installed (pre-setup) on the remote machine
 		ssh -i ~/.ssh/${keyNameVal}.pem -o "StrictHostKeyChecking no" ubuntu@${publicIpVal} \
 		    "cd ~ && \
-                     git clone https://github.com/paymaan/setup-machine.git && \
+                     git clone https://github.com/spraza/setup-machine.git && \
                      cd setup-machine && \
-                     git remote set-url origin git@github.com:paymaan/setup-machine.git && \
+                     git remote set-url origin git@github.com:spraza/setup-machine.git && \
                      ./setup-machine && \
                      cd ~"
 	    fi
